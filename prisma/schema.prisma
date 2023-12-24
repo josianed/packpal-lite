@@ -9,24 +9,23 @@ generator client {
 }
 
 model Item {
-    id             Int     @id @default(autoincrement())
-    Pack           Pack?   @relation(fields: [packId], references: [id])
-    packId         Int?
+    id             String   @id @default(cuid())
     name           String
-    brand          String
-    model          String
-    quantity       Int
-    weightMetric   Decimal @db.Decimal(2, 2)
-    weightImperial Decimal @db.Decimal(2, 2)
-
-    @@index([packId])
+    brand          String?
+    model          String?
+    quantity       Int?
+    weightMetric   Decimal? @db.Decimal(2, 2)
+    weightImperial Decimal? @db.Decimal(2, 2)
+    packs          Pack[]
 }
 
 model Pack {
-    id            Int      @id @default(autoincrement())
-    name          String
-    date          DateTime @default(now())
-    currentWeight Decimal  @db.Decimal(2, 2)
-    targetWeight  Decimal  @db.Decimal(2, 2)
-    items         Item[]
+    id                    String   @id @default(cuid())
+    name                  String
+    date                  DateTime @default(now())
+    currentWeightMetric   Decimal? @db.Decimal(2, 2)
+    targetWeightMetric    Decimal? @db.Decimal(2, 2)
+    currentWeightImperial Decimal? @db.Decimal(2, 2)
+    targetWeightImperial  Decimal? @db.Decimal(2, 2)
+    items                 Item[]
 }
