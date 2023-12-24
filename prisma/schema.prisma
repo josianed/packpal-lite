@@ -8,11 +8,24 @@ generator client {
     provider = "prisma-client-js"
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model Item {
+    id             String   @id @default(cuid())
+    name           String
+    brand          String?
+    model          String?
+    quantity       Int?
+    weightMetric   Decimal? @db.Decimal(2, 2)
+    weightImperial Decimal? @db.Decimal(2, 2)
+    packs          Pack[]
+}
 
-    @@index([name])
+model Pack {
+    id                    String   @id @default(cuid())
+    name                  String
+    date                  DateTime @default(now())
+    currentWeightMetric   Decimal? @db.Decimal(2, 2)
+    targetWeightMetric    Decimal? @db.Decimal(2, 2)
+    currentWeightImperial Decimal? @db.Decimal(2, 2)
+    targetWeightImperial  Decimal? @db.Decimal(2, 2)
+    items                 Item[]
 }
