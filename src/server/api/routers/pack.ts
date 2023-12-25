@@ -1,8 +1,13 @@
 import { z } from "zod";
 
-import { createTRPCRouter } from "~/server/api/trpc";
+import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
 
 export const packRouter = createTRPCRouter({
+  packList: privateProcedure.query(async ({ ctx }) => {
+    const packs = await ctx.db.pack.findMany();
+
+    return packs;
+  }),
   //   create: publicProcedure
   //     .input(
   //       z.object({

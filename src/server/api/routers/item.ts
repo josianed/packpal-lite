@@ -1,8 +1,13 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
 
 export const itemRouter = createTRPCRouter({
+  itemList: privateProcedure.query(async ({ ctx }) => {
+    const items = await ctx.db.item.findMany();
+
+    return items;
+  }),
   // hello: publicProcedure
   //   .input(z.object({ text: z.string() }))
   //   .query(({ input }) => {
