@@ -5,10 +5,8 @@ import { api } from "~/utils/api";
 
 export default function Home() {
   const user = useUser();
-
-  console.log("user info from landing page", user);
-
-  const { data } = api.pack.packList.useQuery();
+  console.log("user", user);
+  const { data, isLoading, error } = api.pack.packList.useQuery();
 
   return (
     <>
@@ -27,22 +25,32 @@ export default function Home() {
             </span>
           </h1>
           <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-            <div className="text-lg">
+            <h4 className="text-lg">
               {user?.isSignedIn
                 ? "Let's plan your next adventure."
                 : "Log in to start planning your next adventure."}
-            </div>
+            </h4>
             <div className="container flex flex-col items-center justify-center">
               {!user?.isSignedIn && <SignIn />}
             </div>
             <div></div>
           </div>
-          <p className="text-[hsl(218, 100%, 33%)] text-2xl">
+          <div className="text-[hsl(218, 100%, 33%)] text-2xl">
+            {isLoading && (
+              <p className="container flex flex-col items-center justify-center">
+                🎒 Packs loading...
+              </p>
+            )}
+            {error && (
+              <p className="container flex flex-col items-center justify-center">
+                Something went wrong 🙀
+              </p>
+            )}
             {user?.isSignedIn &&
               (!!data && data?.length > 0
                 ? data.map(({ id, name }) => <h5 key={id}>{name}</h5>)
                 : "To get started, create a new pack.")}
-          </p>
+          </div>
         </div>
       </main>
     </>
