@@ -22,7 +22,7 @@ import { db } from "~/server/db";
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
 
-type CreateContextOptions = Record<string, never>;
+// type CreateContextOptions = Record<string, never>;
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
@@ -45,12 +45,12 @@ type CreateContextOptions = Record<string, never>;
 export const createTRPCContext = (opts: CreateNextContextOptions) => {
   const { req } = opts;
 
-  const session = getAuth(req);
-  const user = session.actor;
+  const userSession = getAuth(req);
+  const userId = userSession.userId;
 
   return {
     db,
-    currentUser: user,
+    currentUserId: userId,
   };
 };
 
@@ -100,14 +100,14 @@ export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
 
 const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
-  console.log("ctx in trpc enforeuserisauthed function", ctx);
-  if (!ctx.currentUser) {
+
+  if (!ctx.currentUserId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
   return next({
     ctx: {
-      user: ctx.currentUser,
+      currentUser: ctx.currentUserId,
     },
   });
 });

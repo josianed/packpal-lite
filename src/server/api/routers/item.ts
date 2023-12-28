@@ -1,34 +1,52 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
 
 export const itemRouter = createTRPCRouter({
   itemList: privateProcedure.query(async ({ ctx }) => {
-    const items = await ctx.db.item.findMany();
+    const userId = ctx.currentUserId;
 
-    return items;
+    if (!userId) {
+      throw new TRPCError({ code: "UNAUTHORIZED" })
+    }
+
+    return await ctx.db.item.findMany({
+      where: {
+        userId: userId,
+      },
+    });
   }),
-  // hello: publicProcedure
-  //   .input(z.object({ text: z.string() }))
-  //   .query(({ input }) => {
-  //     return {
-  //       greeting: `Hello ${input.text}`,
-  //     };
-  //   }),
-  // create: publicProcedure
-  //   .input(z.object({ name: z.string().min(1) }))
-  //   .mutation(async ({ ctx, input }) => {
-  //     // simulate a slow db call
-  //     await new Promise((resolve) => setTimeout(resolve, 1000));
-  //     return ctx.db.post.create({
-  //       data: {
-  //         name: input.name,
-  //       },
-  //     });
-  //   }),
-  // getLatest: publicProcedure.query(({ ctx }) => {
-  //   return ctx.db.post.findFirst({
-  //     orderBy: { createdAt: "desc" },
-  //   });
-  // }),
+  create: privateProcedure
+  .input(
+    z.object({
+      name: z.string(),
+      brand: z.string().optional(),
+      model: z.number().optional(),
+      quantity: z.number().optional(),
+      weightMetric: z.number().optional(),
+      weightImperial: z.number().optional(),
+      packs: z.array(z.string()).optional(),
+    }),
+  )
+  .mutation(async ({ ctx, input }) => {
+    const userId = ctx.currentUserId;
+
+    if (!userId) {
+      throw new TRPCError({ code: "UNAUTHORIZED"})
+    }
+    return ctx.db.pack.create({
+      data: {
+        name: input.name,
+        brand: input.brand ?? null,
+        model: input.model ?? null,
+        quantity: input.quantity ?? null,
+        weightMetric: input.weightMetric ?? null,
+        weightImperial: input.weightImperial ?? null,
+        packs: input.packs ?? null,
+        userId: userId
+      },
+    });
+  }),
+
 });

@@ -1,47 +1,56 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  privateProcedure,
+} from "~/server/api/trpc";
 
 export const packRouter = createTRPCRouter({
   packList: privateProcedure.query(async ({ ctx }) => {
-    const packs = await ctx.db.pack.findMany();
+    const userId = ctx.currentUserId;
 
-    return packs;
+    if (!userId) {
+      throw new TRPCError({ code: "UNAUTHORIZED" })
+    }
+
+    return await ctx.db.pack.findMany({
+      where: {
+        userId: userId 
+      },
+    });
   }),
-  //   create: publicProcedure
-  //     .input(
-  //       z.object({
-  //         name: z.string().min(1),
-  //         brand: z.string(),
-  //         model: z.string(),
-  //         quantity: z.number(),
-  //         weightMetric: z.number().optional(),
-  //         weightImperial: z.number().optional(),
-  //         pack: z
-  //           .Schema({
-  //             name: z.string(),
-  //             date: z.date(),
-  //             currentWeightMetric: z.number(),
-  //             currentWeightImperial: z.number(),
-  //             targetWeightMetric: z.number(),
-  //             targetWeightImerial: z.number(),
-  //             items: z.array().optional(),
-  //           })
-  //           .optional(),
-  //       }),
-  //     )
-  //     .mutation(async ({ ctx, input }) => {
-  //       const pack = input.pack || null;
-  //       return ctx.db.pack.create({
-  //         data: {
-  //           name: input.name,
-  //           brand: input.brand,
-  //           model: input.model,
-  //           quantity: input.quantity,
-  //           pack: pack,
-  //         },
-  //       });
-  //     }),
+    create: privateProcedure
+      .input(
+        z.object({
+          name: z.string(),
+          date: z.date().optional(),
+          currentWeightMetric: z.number().optional(),
+          targetWeightMetric: z.number().optional(),
+          currentWeightImperial: z.number().optional(),
+          targetWeightImperial: z.number().optional(),
+          items: z.array(z.string()).optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const userId = ctx.currentUserId;
+
+        if (!userId) {
+          throw new TRPCError({ code: "UNAUTHORIZED"})
+        }
+        return ctx.db.pack.create({
+          data: {
+            name: input.name,
+            date: input.date,
+            currentWeightMetric: input.currentWeightMetric ?? null,
+            targetWeightMetric: input.targetWeightMetric ?? null,
+            currentWeightImperial: input.currentWeightImperial ?? null,
+            targetWeightImperial: input.targetWeightImperial ?? null,
+            userId: userId
+          },
+        });
+      }),
+
   // getLatest: publicProcedure.query(({ ctx }) => {
   // return ctx.db.pack.findFirst({
   //   orderBy: { date: "desc" },
