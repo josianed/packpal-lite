@@ -1,31 +1,37 @@
 datasource db {
-    provider     = "mysql"
-    url          = env("DATABASE_URL")
-    relationMode = "prisma"
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 model Item {
-    id             String   @id @default(cuid())
-    name           String
-    brand          String?
-    model          String?
-    quantity       Int?
-    weightMetric   Decimal? @db.Decimal(2, 2)
-    weightImperial Decimal? @db.Decimal(2, 2)
-    packs          Pack[]
+  id             String   @id @default(cuid())
+  name           String
+  brand          String?
+  model          String?
+  quantity       Int?
+  weightMetric   Decimal? @db.Decimal(2, 2)
+  weightImperial Decimal? @db.Decimal(2, 2)
+  userId         String
+  packs          Pack[]
+
+  @@index([userId])
 }
 
 model Pack {
-    id                    String   @id @default(cuid())
-    name                  String
-    date                  DateTime @default(now())
-    currentWeightMetric   Decimal? @db.Decimal(2, 2)
-    targetWeightMetric    Decimal? @db.Decimal(2, 2)
-    currentWeightImperial Decimal? @db.Decimal(2, 2)
-    targetWeightImperial  Decimal? @db.Decimal(2, 2)
-    items                 Item[]
+  id                    String   @id @default(cuid())
+  name                  String
+  date                  DateTime @default(now())
+  currentWeightMetric   Decimal? @db.Decimal(2, 2)
+  targetWeightMetric    Decimal? @db.Decimal(2, 2)
+  currentWeightImperial Decimal? @db.Decimal(2, 2)
+  targetWeightImperial  Decimal? @db.Decimal(2, 2)
+  items                 Item[]
+  userId                String
+
+  @@index([userId])
 }
