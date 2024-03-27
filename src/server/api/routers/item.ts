@@ -16,7 +16,7 @@ export const itemRouter = createTRPCRouter({
         userId: userId,
       },
     });
-  }),
+  })
   // create: privateProcedure
   // .input(
   //   z.object({
